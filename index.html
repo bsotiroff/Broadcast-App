@@ -11,6 +11,14 @@
       body {
         font: 13px Helvetica, Arial;
       }
+      .speaker-button {
+        height: 300px;
+        width: 300px;
+        display: block;
+        margin: 60px auto;
+        overflow: hidden;
+        position: relative;
+      }
     </style>
   </head>
   <body>
@@ -23,6 +31,39 @@
       allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
       allowfullscreen
     ></iframe>
+    <button class="speaker-button" onclick="record()">Record</button>
+    <!-- <button class="stop-button" onclick="endRecording()">Stop</button> -->
     <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+      socket.on('connect', function() {
+        socket.send('connected');
+      });
+
+      function record() {
+        socket.send('message');
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+          const mediaRecorder = new MediaRecorder(stream);
+          let audioChunks = [];
+          //when button is pushed, record and emit audio
+          mediaRecorder.start();
+
+          mediaRecorder.addEventListener('dataavailable', event => {
+            audioChunks.push(event.data);
+            socket.emit('audioMessage', audioChunks);
+          });
+        });
+
+        // socket.emit('text', msg);
+        console.log('record');
+      }
+
+      // function endRecording() {
+      //   mediaRecorder.stop();
+      //   // mediaRecorder.addEventListener('stop', () => {
+      //   //   audioChunks = [];
+      //   // });
+      // }
+    </script>
   </body>
 </html>
