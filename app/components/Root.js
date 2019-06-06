@@ -1,16 +1,21 @@
 import React from 'react';
-import { withRouter, Route, Switch } from 'react-router-dom';
-import { connect } from 'react-redux';
+import { withRouter, Route, Switch, Link } from 'react-router-dom';
+// import { connect } from 'react-redux';
+import Listener from './Listener';
+import Broadcaster from './Broadcaster';
+import Hello from './Hello';
 
-export class Root extends React.Component {
+export default class Root extends React.Component {
   componentDidMount() {}
 
   render() {
     return (
       <div>
-        <Navbar />
+        <Link to="/broadcaster">broadcaster</Link>
+        <Link to="/listener">listener</Link>
         <main>
           <Switch>
+            <Route exact path="/" component={Hello} />
             <Route path="/broadcaster" component={Broadcaster} />
             <Route path="/listener" component={Listener} />
           </Switch>
