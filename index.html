@@ -31,39 +31,91 @@
       allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
       allowfullscreen
     ></iframe>
-    <button class="speaker-button" onclick="record()">Record</button>
-    <!-- <button class="stop-button" onclick="endRecording()">Stop</button> -->
+    <button class="startRecord">Record</button>
+    <button class="endRecord">Stop</button>
+    <button class="playStream">Play Stream</button>
     <script src="/socket.io/socket.io.js"></script>
+
     <script>
       const socket = io();
-      socket.on('connect', function() {
-        socket.send('connected');
+
+      socket.on("connect", function() {
+        console.log("socket connected");
+        socket.send("connected");
+      });
+      // let audioChunks = [];
+      let rec;
+      let blob;
+      navigator.mediaDevices
+        .getUserMedia({ audio: true })
+        .then(stream => {
+          rec = new MediaRecorder(stream);
+          rec.ondataavailable = event => {
+            socket.emit("audioMessage", event.data);
+            console.log('Sending to server', event.data)
+          };
+        })
+        .catch(e => console.log(e));
+
+      let startRecord = document.getElementsByClassName("startRecord")[0];
+      let stopRecord = document.getElementsByClassName("endRecord")[0];
+      let playStream = document.getElementsByClassName("playStream")[0];
+      
+      let bool;
+      startRecord.onclick = e => {
+        console.log("started recording");
+        startRecord.disabled = true;
+        stopRecord.disabled = false;
+        audioChunks = [];
+        rec.start(300);
+        bool = true;
+      };
+      stopRecord.onclick = e => {
+        startRecord.disabled = false;
+        stopRecord.disabled = true;
+        rec.stop();
+        bool = false;
+      };
+      let message;
+      let newMessage = undefined;
+
+      // 1. converted array buffer to blob,
+      // 2. added if statement with then
+      // 3. originally only first blob played anything else returned an erro
+      // 4. added rec.stop(), rec.start(300), now all are plying
+      // 5. issue: feedback gets recorded
+      socket.on("listenToMessage", function(msg) {
+        console.log('Before we make it a blob: ', msg)
+        var blob = new Blob([msg], { type: "audio/ogg; codecs=opus" });
+        var audio = document.createElement("audio");
+        audio.src = window.URL.createObjectURL(blob);
+        var playPromise = audio.play();
+        // console.log('playPromise: ', playPromise)
+        if (playPromise !== undefined) {
+          playPromise
+            .then(_ => {
+              console.log('playback')
+              rec.stop()
+              rec.start(300)
+            })
+            .catch(error => {
+              console.log('error: ', error)
+            });
+
+      }
       });
 
-      function record() {
-        socket.send('message');
-        navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-          const mediaRecorder = new MediaRecorder(stream);
-          let audioChunks = [];
-          //when button is pushed, record and emit audio
-          mediaRecorder.start();
+      // socket.emit("listenToMessage", msg);
 
-          mediaRecorder.addEventListener('dataavailable', event => {
-            audioChunks.push(event.data);
-            socket.emit('audioMessage', audioChunks);
-          });
-        });
+      playStream.onclick = () => {
+        // playMessage()
+      };
 
-        // socket.emit('text', msg);
-        console.log('record');
+      function playMessage() {
+        //  while (bool) {
+        //    console.log('Play stream: ', message)
+        //  }
       }
-
-      // function endRecording() {
-      //   mediaRecorder.stop();
-      //   // mediaRecorder.addEventListener('stop', () => {
-      //   //   audioChunks = [];
-      //   // });
-      // }
     </script>
   </body>
 </html>
