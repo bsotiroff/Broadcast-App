@@ -1,0 +1,16 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font: 13px Helvetica, Arial;
+}
+.speaker-button {
+  height: 300px;
+  width: 300px;
+  display: block;
+  margin: 60px auto;
+  overflow: hidden;
+  position: relative;
+}
