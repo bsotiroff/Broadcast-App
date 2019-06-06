@@ -31,8 +31,6 @@
       allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
       allowfullscreen
     ></iframe>
-    <button class="startRecord">Record</button>
-    <button class="endRecord">Stop</button>
     <button class="playStream">Play Stream</button>
     <script src="/socket.io/socket.io.js"></script>
 
@@ -44,40 +42,8 @@
         socket.send('connected');
       });
       // let audioChunks = [];
-      let rec;
-      let blob;
-      navigator.mediaDevices
-        .getUserMedia({ audio: true })
-        .then(stream => {
-          rec = new MediaRecorder(stream);
-          rec.ondataavailable = event => {
-            socket.emit('audioMessage', event.data);
-            console.log('Sending to server', event.data);
-          };
-        })
-        .catch(e => console.log(e));
 
-      let startRecord = document.getElementsByClassName('startRecord')[0];
-      let stopRecord = document.getElementsByClassName('endRecord')[0];
       let playStream = document.getElementsByClassName('playStream')[0];
-
-      let bool;
-      startRecord.onclick = e => {
-        console.log('started recording');
-        startRecord.disabled = true;
-        stopRecord.disabled = false;
-        audioChunks = [];
-        rec.start(300);
-        bool = true;
-      };
-      stopRecord.onclick = e => {
-        startRecord.disabled = false;
-        stopRecord.disabled = true;
-        rec.stop();
-        bool = false;
-      };
-      let message;
-      let newMessage = undefined;
 
       // 1. converted array buffer to blob,
       // 2. added if statement with then

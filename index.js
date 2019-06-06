@@ -6,6 +6,10 @@ app.get('/', function(req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
+app.get('/listener', function(req, res) {
+  res.send(__dirname + '/listener.html');
+});
+
 io.on('connection', function(socket) {
   console.log('a user connected');
   socket.on('audioMessage', function(msg) {
