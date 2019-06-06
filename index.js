@@ -7,7 +7,7 @@ app.get('/', function(req, res) {
 });
 
 app.get('/listener', function(req, res) {
-  res.send(__dirname + '/listener.html');
+  res.sendFile(__dirname + '/listener.html');
 });
 
 io.on('connection', function(socket) {
